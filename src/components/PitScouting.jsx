@@ -22,10 +22,6 @@ function PitScouting() {
     const [transcript, setTranscript] = useState('')
     const [parsing, setParsing] = useState(false)
     const recognitionRef = useRef(null)
-    const audioContextRef = useRef(null)
-    const analyserRef = useRef(null)
-    const animationRef = useRef(null)
-    const [volume, setVolume] = useState(0)
 
     const questions = [
         { key: 'submittingForImpact', label: 'Are they submitting for the Impact Award?' },
@@ -39,35 +35,8 @@ function PitScouting() {
         { key: 'sustainability', label: 'How do they maintain sustainability and organization?' },
         { key: 'otherNotes', label: 'Any other key points?' },
     ]
-    const startVolumeMonitor = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        const audioContext = new AudioContext()
-        const analyser = audioContext.createAnalyser()
-        const source = audioContext.createMediaStreamSource(stream)
 
-        analyser.fftSize = 256
-        source.connect(analyser)
-
-        audioContextRef.current = audioContext
-        analyserRef.current = analyser
-
-        const tick = () => {
-            const data = new Uint8Array(analyser.frequencyBinCount)
-            analyser.getByteFrequencyData(data)
-            const avg = data.reduce((a, b) => a + b, 0) / data.length
-            setVolume(avg)
-            animationRef.current = requestAnimationFrame(tick)
-        }
-        tick()
-    }
-
-    const stopVolumeMonitor = () => {
-        if (animationRef.current) cancelAnimationFrame(animationRef.current)
-        if (audioContextRef.current) audioContextRef.current.close()
-        setVolume(0)
-    }
     const startListening = () => {
-        startVolumeMonitor()
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
         if (!SpeechRecognition) {
             alert('Your browser does not support voice input. Try Chrome!')
@@ -108,7 +77,6 @@ function PitScouting() {
     }
 
     const stopListening = () => {
-        stopVolumeMonitor()
         if (recognitionRef.current) {
             recognitionRef.current.onend = null
             recognitionRef.current.stop()
@@ -229,9 +197,9 @@ Return ONLY a valid JSON object with exactly these keys:
             </div>
 
             <div style={{ marginBottom: 24, padding: 16, border: '1px solid #ccc', borderRadius: 8, background: '#f9f9f9' }}>
-                <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Voice input</p>
+                <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Click to interview</p>
                 <p style={{ margin: '0 0 12px', fontSize: 13, color: 'gray' }}>
-                    Click the blue button to start your interview and fill out the areas with the red button.
+                    Tap the mic, talk freely about the team, then hit Parse to auto-fill the form.
                 </p>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
                     {!listening ? (
@@ -257,16 +225,6 @@ Return ONLY a valid JSON object with exactly these keys:
                         {parsing ? 'Parsing...' : 'Organize'}
                     </button>
                 </div>
-                {listening && (
-                    <div style={{ marginTop: 10, height: 8, borderRadius: 4, background: '#eee', overflow: 'hidden' }}>
-                        <div style={{
-                            height: '100%',
-                            width: `${Math.min(volume * 3, 100)}%`,
-                            background: volume > 20 ? '#D72638' : '#1B4FD8',
-                            transition: 'width 0.1s ease'
-                        }} />
-                    </div>
-                )}
                 {transcript && (
                     <div style={{ fontSize: 13, color: '#333', background: 'white', padding: 10, borderRadius: 6, border: '1px solid #ddd' }}>
                         <strong>Transcript:</strong> {transcript}
