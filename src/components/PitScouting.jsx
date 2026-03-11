@@ -207,7 +207,7 @@ Return ONLY a valid JSON object with exactly these keys:
                             onClick={startListening}
                             style={{ background: '#1B4FD8', color: 'white', padding: '10px 20px', border: 'none', borderRadius: 8, cursor: 'pointer' }}
                         >
-                            🎙️ Start Talking
+                            Click to start recording
                         </button>
                     ) : (
                         <button
@@ -220,9 +220,9 @@ Return ONLY a valid JSON object with exactly these keys:
                     <button
                         onClick={parseWithGroq}
                         disabled={parsing || !transcript}
-                        style={{ background: '#22C55E', color: 'white', padding: '10px 20px', border: 'none', borderRadius: 8, cursor: 'pointer', opacity: (!transcript || parsing) ? 0.5 : 1 }}
+                        style={{ background: 'red', color: 'white', padding: '10px 20px', border: 'none', borderRadius: 8, cursor: 'pointer', opacity: (!transcript || parsing) ? 0.5 : 1 }}
                     >
-                        {parsing ? 'Parsing...' : '⚡ Parse into Fields'}
+                        {parsing ? 'Parsing...' : 'Organize'}
                     </button>
                 </div>
                 {transcript && (
