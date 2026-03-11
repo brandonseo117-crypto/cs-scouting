@@ -128,6 +128,11 @@ Return ONLY a valid JSON object with exactly these keys:
             })
 
             const data = await response.json()
+            console.log('Groq response:', data)
+            if (data.error) {
+                alert('Groq error: ' + data.error.message)
+                return
+            }
             const raw = data.choices[0].message.content
             const cleaned = raw.replace(/```json|```/g, '').trim()
             const parsed = JSON.parse(cleaned)
